@@ -18,10 +18,19 @@ oxigenio_atencao = 90
 estabilidade_critica = 40
 estabilidade_atencao = 65
 
-dados_missao = [[0] * infos for i in range(ciclos)]
+'''dados_missao = [[0] * infos for i in range(ciclos)]
 for i in range (ciclos):
     for j in range(infos):
-        dados_missao[i][j] = random.randint(0, 100)
+        dados_missao[i][j] = random.randint(0, 100)'''
+        
+dados_missao = [
+    [28, 90, 95, 98, 95],
+    [30, 85, 90, 95, 90],
+    [31, 25, 85, 92, 88],
+    [33, 40, 18, 90, 80],
+    [37, 20, 15, 75, 35],
+    [32, 70, 45, 88, 75]
+]
 
 areas_monitoradas = [
     "Temperatura interna",
@@ -121,16 +130,17 @@ def identificar_area_mais_afetada(ciclo):
     pontos_area.append(analisar_estabilidade(ciclo))
     
     maior_pontuacao = max(pontos_area)
-    if maior_pontuacao > 0:
-        indices_areas_mais_afetadas = [i for i, x in enumerate(pontos_area) if x == maior_pontuacao]
+    if maior_pontuacao == 0:
+        return "Nenhuma área com riscos"
+
+    indices_areas_mais_afetadas = [
+        i for i, x in enumerate(pontos_area) if x == maior_pontuacao]
     
     areas = []
 
     for indice in indices_areas_mais_afetadas:
         areas.append(areas_monitoradas[indice])
         
-    if not areas:
-        return "Nenhuma área com riscos"
     else: 
         if len(areas) == 1:
             return areas[0]
