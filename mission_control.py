@@ -1,4 +1,5 @@
-import random
+nome_missao = "Mission Orion"
+nome_equipe = "Equipe Apollo"
 
 ciclos = 6
 infos = 5
@@ -17,19 +18,14 @@ oxigenio_atencao = 90
 
 estabilidade_critica = 40
 estabilidade_atencao = 65
-
-'''dados_missao = [[0] * infos for i in range(ciclos)]
-for i in range (ciclos):
-    for j in range(infos):
-        dados_missao[i][j] = random.randint(0, 100)'''
         
 dados_missao = [
-    [28, 90, 95, 98, 95],
-    [30, 85, 90, 95, 90],
-    [31, 25, 85, 92, 88],
-    [33, 40, 18, 90, 80],
-    [37, 20, 15, 75, 35],
-    [32, 70, 45, 88, 75]
+    [28.3, 90, 95, 98.2, 95],
+    [30.7, 85, 90, 95.5, 90],
+    [31.2, 25, 85, 92.4, 88],
+    [33.4, 40, 18, 90.1, 80],
+    [35.6, 20, 15, 75.6, 35],
+    [32.0, 70, 45, 88.2, 75]
 ]
 
 areas_monitoradas = [
@@ -104,7 +100,7 @@ def classificar_ciclo(ciclo):
     else:
         return "MISSÃO CRÍTICA"
 
-def analisar_tendencia(ciclo):
+def analisar_tendencia_ciclo(ciclo):
 
     if ciclo == 0:
         return "Sem histórico"
@@ -120,8 +116,8 @@ def analisar_tendencia(ciclo):
 
     else:
         return "Melhora"
-    
-def identificar_area_mais_afetada(ciclo):
+
+def listar_pontos_areas(ciclo):
     pontos_area = []
     pontos_area.append(analisar_temperatura(ciclo))
     pontos_area.append(analisar_comunicacao(ciclo))
@@ -129,23 +125,32 @@ def identificar_area_mais_afetada(ciclo):
     pontos_area.append(analisar_oxigenio(ciclo))
     pontos_area.append(analisar_estabilidade(ciclo))
     
+    return pontos_area
+
+def identificar_area_mais_afetada_ciclo(ciclo):
+
+    pontos_area = listar_pontos_areas(ciclo)
+
     maior_pontuacao = max(pontos_area)
+
     if maior_pontuacao == 0:
         return "Nenhuma área com riscos"
 
     indices_areas_mais_afetadas = [
-        i for i, x in enumerate(pontos_area) if x == maior_pontuacao]
-    
+        i for i, x in enumerate(pontos_area)
+        if x == maior_pontuacao
+    ]
+
     areas = []
 
     for indice in indices_areas_mais_afetadas:
         areas.append(areas_monitoradas[indice])
-        
-    else: 
-        if len(areas) == 1:
-            return areas[0]
-        else: 
-            return ", ".join(areas[:-1]) + " e " + areas[-1]
+
+    if len(areas) == 1:
+        return areas[0]
+
+    else:
+        return ", ".join(areas[:-1]) + " e " + areas[-1]
 
 def gerar_recomendacao(ciclo):
     recomendacoes = []
@@ -173,14 +178,98 @@ def gerar_recomendacao(ciclo):
         else: 
             return ", ".join(recomendacoes[:-1]) + " e " + recomendacoes[-1]
     
-def gerar_relatorio_final(ciclo):
-    return 0
+def gerar_relatorio_final():
+    soma_temperatura = 0
+    soma_comunicacao = 0
+    soma_energia = 0
+    soma_oxigenio = 0
+    soma_estabilidade = 0
+
+    for i in range(ciclos):
+
+        pontos = listar_pontos_areas(i)
+
+        soma_temperatura += pontos[0]
+        soma_comunicacao += pontos[1]
+        soma_energia += pontos[2]
+        soma_oxigenio += pontos[3]
+        soma_estabilidade += pontos[4]
+        
+    risco_inicial_missao = somar_pontos_risco_ciclo(0)
+    risco_final_missao = somar_pontos_risco_ciclo(ciclos-1)
+
+    if risco_final_missao == risco_inicial_missao:
+        tendencia =  "Estável"
+
+    elif risco_final_missao > risco_inicial_missao:
+        tendencia = "Piora"
+
+    else:
+        tendencia = "Melhora"
+        
+    pontuacoes = [
+    soma_temperatura,
+    soma_comunicacao,
+    soma_energia,
+    soma_oxigenio,
+    soma_estabilidade
+    ]
+    
+    maior_pontuacao = max(pontuacoes)
+
+    indices_areas_mais_afetadas = [
+        i for i, x in enumerate(pontuacoes)
+        if x == maior_pontuacao
+    ]
+
+    areas_mais_afetadas_missao = [
+        areas_monitoradas[indice]
+        for indice in indices_areas_mais_afetadas
+    ]
+    
+    print("============================================== RELATÓRIO FINAL ==============================================")
+    
+    print("")
+    print(f"Missão: {nome_missao}")
+    print(f"Equipe: {nome_equipe}")
+    print("")
+    
+    if len(areas_mais_afetadas_missao) == 1:
+        print(f"A área mais afetada da missão foi {areas_mais_afetadas_missao[0]} com {maior_pontuacao} pontos")
+
+    else:
+        texto_areas = (", ".join(areas_mais_afetadas_missao[:-1]) + " e " + areas_mais_afetadas_missao[-1])
+        print(f"As áreas mais afetadas da missão foram: {texto_areas} com {maior_pontuacao} pontos")
+        
+    print("")
+    print(f"- Tendência geral da missão: {tendencia}")
+    print(f"- Risco inicial da missão: {risco_inicial_missao} pontos")
+    print(f"- Risco final da missão: {risco_final_missao} pontos")
+    print("")
+    print(f"- Temperatura interna: {soma_temperatura} pontos de risco na missão")
+    print(f"- Comunicação com a base: {soma_comunicacao} pontos de risco na missão")
+    print(f"- Sistemas de energia: {soma_energia} pontos de risco na missão")
+    print(f"- Suporte de oxigênio: {soma_oxigenio} pontos de risco na missão")
+    print(f"- Estabilidade operacional: {soma_estabilidade} pontos de risco na missão")
+    print("============================================================================================================")
 
 for i in range(ciclos):
     print(f"============================================== CICLO {i+1}: {ciclos_monitorados[i].upper()} ==============================================")
     print("")
     print(f"- Status da missão: {classificar_ciclo(i)}")
-    print(f"- Área(s) de maior risco: {identificar_area_mais_afetada(i)}")
-    print(f"- Análise de tendência: {analisar_tendencia(i)}")
+    print(f"- Área(s) de maior risco: {identificar_area_mais_afetada_ciclo(i)}")
+    print("")
+        
+    print(f"- Temperatura interna: {dados_missao[i][0]} °C")
+    print(f"- Comunicação com a base: {dados_missao[i][1]} %")
+    print(f"- Sistemas de energia: {dados_missao[i][2]} %")
+    print(f"- Suporte de oxigênio: {dados_missao[i][3]} %")
+    print(f"- Estabilidade operacional: {dados_missao[i][4]} %")
+    
+    print("")
+    
+    print(f"- Análise de tendência entre esse ciclo e o último: {analisar_tendencia_ciclo(i)}")
     print(f"- Recomendações: {gerar_recomendacao(i)}")
     print("")
+
+gerar_relatorio_final()
