@@ -2,7 +2,8 @@ nome_missao = "Mission Orion"
 nome_equipe = "Equipe Apollo"
 
 ciclos = 6
-infos = 5
+
+# ==== VALORES MÁXIMOS POR FAIXA ====
 
 temperatura_critica = 35
 temperatura_atencao = 33
@@ -37,6 +38,8 @@ areas_monitoradas = [
 ]
 
 ciclos_monitorados = ["início da missão", "estabilização dos sistemas", "queda parcial de comunicação", "alerta de energia", "risco operacional", "tentativa de recuperação"]
+
+# ==== FUNÇÕES DE ANALISAR DADOS ====
 
 def analisar_temperatura(ciclo):
     if dados_missao[ciclo][0] >= temperatura_critica:
@@ -78,7 +81,9 @@ def analisar_estabilidade(ciclo):
     else:
         return 0
 
-def somar_pontos_risco_ciclo(ciclo):
+# ==== FUNÇÕES PARA REGISTROS DE CICLOS ====
+
+def somar_pontos_risco_ciclo(ciclo): # Soma dos pontos de risco de todas as áreas por ciclo
     pontos_risco = sum([
         analisar_temperatura(ciclo),
         analisar_comunicacao(ciclo),
@@ -89,7 +94,17 @@ def somar_pontos_risco_ciclo(ciclo):
     
     return pontos_risco
 
-def classificar_ciclo(ciclo):
+def listar_pontos_areas(ciclo): # Pontos de cada área por ciclo
+    pontos_area = []
+    pontos_area.append(analisar_temperatura(ciclo))
+    pontos_area.append(analisar_comunicacao(ciclo))
+    pontos_area.append(analisar_bateria(ciclo))
+    pontos_area.append(analisar_oxigenio(ciclo))
+    pontos_area.append(analisar_estabilidade(ciclo))
+    
+    return pontos_area
+
+def classificar_ciclo(ciclo): # Retorna status da missão
 
     pontos_risco = somar_pontos_risco_ciclo(ciclo)
 
@@ -100,7 +115,29 @@ def classificar_ciclo(ciclo):
     else:
         return "MISSÃO CRÍTICA"
 
-def analisar_tendencia_ciclo(ciclo):
+def identificar_area_mais_afetada_ciclo(ciclo):
+
+    pontos_area = listar_pontos_areas(ciclo) # Vetor com pontos de risco de todas as áreas por ciclo
+
+    maior_pontuacao = max(pontos_area)
+
+    if maior_pontuacao == 0:
+        return "Nenhuma área com riscos"
+
+    indices_areas_mais_afetadas = [i for i, x in enumerate(pontos_area) if x == maior_pontuacao] # Vetor com índices das áreas mais afetadas
+
+    areas = []
+
+    for indice in indices_areas_mais_afetadas:
+        areas.append(areas_monitoradas[indice]) # Adiciona a área mais afetada através do seu índice no vetor de áreas monitoradas
+
+    if len(areas) == 1:
+        return areas[0]
+
+    else:
+        return ", ".join(areas[:-1]) + " e " + areas[-1] # Se houver empate nos pontos de risco, haverão mais de uma área "mais afetada"
+
+def analisar_tendencia_ciclo(ciclo): # Retorna tendência entre um ciclo e o ciclo anterior
 
     if ciclo == 0:
         return "Sem histórico"
@@ -116,41 +153,6 @@ def analisar_tendencia_ciclo(ciclo):
 
     else:
         return "Melhora"
-
-def listar_pontos_areas(ciclo):
-    pontos_area = []
-    pontos_area.append(analisar_temperatura(ciclo))
-    pontos_area.append(analisar_comunicacao(ciclo))
-    pontos_area.append(analisar_bateria(ciclo))
-    pontos_area.append(analisar_oxigenio(ciclo))
-    pontos_area.append(analisar_estabilidade(ciclo))
-    
-    return pontos_area
-
-def identificar_area_mais_afetada_ciclo(ciclo):
-
-    pontos_area = listar_pontos_areas(ciclo)
-
-    maior_pontuacao = max(pontos_area)
-
-    if maior_pontuacao == 0:
-        return "Nenhuma área com riscos"
-
-    indices_areas_mais_afetadas = [
-        i for i, x in enumerate(pontos_area)
-        if x == maior_pontuacao
-    ]
-
-    areas = []
-
-    for indice in indices_areas_mais_afetadas:
-        areas.append(areas_monitoradas[indice])
-
-    if len(areas) == 1:
-        return areas[0]
-
-    else:
-        return ", ".join(areas[:-1]) + " e " + areas[-1]
 
 def gerar_recomendacao(ciclo):
     recomendacoes = []
@@ -176,18 +178,23 @@ def gerar_recomendacao(ciclo):
         if len(recomendacoes) == 1:
             return recomendacoes[0]
         else: 
-            return ", ".join(recomendacoes[:-1]) + " e " + recomendacoes[-1]
+            return ", ".join(recomendacoes[:-1]) + " e " + recomendacoes[-1] #Se houver mais de uma recomendação, retorna todas elas formatadas
     
 def gerar_relatorio_final():
+    
+    # == VARIÁVEIS DE PONTOS DE RISCO TOTAL PARA CADA ÁREA ==
+    
     soma_temperatura = 0
     soma_comunicacao = 0
     soma_energia = 0
     soma_oxigenio = 0
     soma_estabilidade = 0
+    
+    # =======================================================
 
     for i in range(ciclos):
 
-        pontos = listar_pontos_areas(i)
+        pontos = listar_pontos_areas(i) # Vetor com pontos de risco de todas as áreas por ciclo
 
         soma_temperatura += pontos[0]
         soma_comunicacao += pontos[1]
@@ -195,8 +202,10 @@ def gerar_relatorio_final():
         soma_oxigenio += pontos[3]
         soma_estabilidade += pontos[4]
         
-    risco_inicial_missao = somar_pontos_risco_ciclo(0)
-    risco_final_missao = somar_pontos_risco_ciclo(ciclos-1)
+    # == IDENTIFICAR TENDÊNCIA DA MISSÃO ==
+    
+    risco_inicial_missao = somar_pontos_risco_ciclo(0) # Retorna o risco do primeiro ciclo
+    risco_final_missao = somar_pontos_risco_ciclo(ciclos-1) # Retorna o risco do último ciclo
 
     if risco_final_missao == risco_inicial_missao:
         tendencia =  "Estável"
@@ -206,7 +215,9 @@ def gerar_relatorio_final():
 
     else:
         tendencia = "Melhora"
-        
+    
+    # == IDENTIFICAR ÁREA MAIS AFETADA NA MISSÃO ==
+    
     pontuacoes = [
     soma_temperatura,
     soma_comunicacao,
@@ -217,15 +228,9 @@ def gerar_relatorio_final():
     
     maior_pontuacao = max(pontuacoes)
 
-    indices_areas_mais_afetadas = [
-        i for i, x in enumerate(pontuacoes)
-        if x == maior_pontuacao
-    ]
+    indices_areas_mais_afetadas = [i for i, x in enumerate(pontuacoes) if x == maior_pontuacao]
 
-    areas_mais_afetadas_missao = [
-        areas_monitoradas[indice]
-        for indice in indices_areas_mais_afetadas
-    ]
+    areas_mais_afetadas_missao = [areas_monitoradas[indice] for indice in indices_areas_mais_afetadas]
     
     print("============================================== RELATÓRIO FINAL ==============================================")
     
@@ -253,6 +258,8 @@ def gerar_relatorio_final():
     print(f"- Estabilidade operacional: {soma_estabilidade} pontos de risco na missão")
     print("============================================================================================================")
 
+# ==== REGISTRO DE CICLOS ====
+
 for i in range(ciclos):
     print(f"============================================== CICLO {i+1}: {ciclos_monitorados[i].upper()} ==============================================")
     print("")
@@ -271,5 +278,7 @@ for i in range(ciclos):
     print(f"- Análise de tendência entre esse ciclo e o último: {analisar_tendencia_ciclo(i)}")
     print(f"- Recomendações: {gerar_recomendacao(i)}")
     print("")
+
+# ==== RELATÓRIO FINAL ====
 
 gerar_relatorio_final()
