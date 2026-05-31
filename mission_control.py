@@ -248,8 +248,8 @@ def gerar_relatorio_final():
         
     print("")
     print(f"- Tendência geral da missão: {tendencia}")
-    print(f"- Risco inicial da missão: {risco_inicial_missao} pontos")
-    print(f"- Risco final da missão: {risco_final_missao} pontos")
+    print(f"- Risco do primeiro ciclo da missão: {risco_inicial_missao} pontos")
+    print(f"- Risco do útlimo ciclo da missão: {risco_final_missao} pontos")
     print("")
     print(f"- Temperatura interna: {soma_temperatura} pontos de risco na missão")
     print(f"- Comunicação com a base: {soma_comunicacao} pontos de risco na missão")
