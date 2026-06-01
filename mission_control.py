@@ -4,7 +4,8 @@ lista_pontos_missao = []
 
 # ==== VALORES MÁXIMOS POR FAIXA ====
 
-temperatura_critica = 35
+temperatura_critica_maxima = 35
+temperatura_critica_minima = 18
 temperatura_atencao = 33
 
 comunicacao_critica = 30
@@ -43,9 +44,9 @@ ciclos_monitorados = ["início da missão", "estabilização dos sistemas", "que
 # ==== FUNÇÕES DE ANÁLISE ====
 
 def analisar_temperatura(ciclo):
-    if dados_missao[ciclo][0] >= temperatura_critica:
+    if dados_missao[ciclo][0] >= temperatura_critica_maxima or dados_missao[ciclo][0] <= temperatura_critica_minima:
         return 2
-    elif dados_missao[ciclo][0] < temperatura_critica and dados_missao[ciclo][0] >= temperatura_atencao:
+    elif dados_missao[ciclo][0] < temperatura_critica_maxima and dados_missao[ciclo][0] >= temperatura_atencao:
         return 1
     else:
         return 0
@@ -81,23 +82,6 @@ def analisar_estabilidade(ciclo):
         return 1
     else:
         return 0
-
-def analisar_tendencia_ciclo(ciclo): # Retorna tendência entre um ciclo e o ciclo anterior
-
-    if ciclo == 0:
-        return "Sem histórico"
-
-    risco_atual = somar_pontos_risco_ciclo(ciclo)
-    risco_anterior = somar_pontos_risco_ciclo(ciclo - 1)
-
-    if risco_atual == risco_anterior:
-        return "Estável"
-
-    elif risco_atual > risco_anterior:
-        return "Piora"
-
-    else:
-        return "Melhora"
                 
 # ==== FUNÇÕES DE CÁLCULO ====
 
@@ -219,6 +203,23 @@ def numero_ciclos_criticos():
             quantidade_ciclos_criticos += 1
     
     return quantidade_ciclos_criticos
+
+def analisar_tendencia_ciclo(ciclo): # Retorna tendência entre um ciclo e o ciclo anterior
+
+    if ciclo == 0:
+        return "Sem histórico"
+
+    risco_atual = somar_pontos_risco_ciclo(ciclo)
+    risco_anterior = somar_pontos_risco_ciclo(ciclo - 1)
+
+    if risco_atual == risco_anterior:
+        return "Estável"
+
+    elif risco_atual > risco_anterior:
+        return "Piora"
+
+    else:
+        return "Melhora"
 
 # ==== FUNÇÕES GENERATIVAS ====
 
